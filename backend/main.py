@@ -21,15 +21,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Fungsi untuk mengambil data dari Google Sheets
 def fetch_data(sheet_name):
     url = f"https://sheets.googleapis.com/v4/spreadsheets/{SPREADSHEET_ID}/values/{sheet_name}?key={API_KEY}"
+    print(f"Fetching from: {url}")  # Cek URL yang digunakan
     response = requests.get(url)
+    print(f"Response Status: {response.status_code}")
+    print(f"Response Data: {response.json()}")  # Debugging isi response
+
     if response.status_code == 200:
         data = response.json().get("values", [])
-        df = pd.DataFrame(data[1:], columns=data[0])  # Gunakan baris pertama sebagai header
-        return df.to_dict(orient="records")
+        if data:
+            df = pd.DataFrame(data[1:], columns=data[0])  # Gunakan baris pertama sebagai header
+            return df.to_dict(orient="records")
     return []
+
 
 # Endpoint API untuk mengambil daftar sheet
 @app.get("/sheets")
